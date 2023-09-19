@@ -1,0 +1,3 @@
+---
+# vars file for ansible-role-pi-baseline
+auth_keys_local_path: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"

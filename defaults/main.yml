@@ -1,0 +1,21 @@
+---
+# defaults file for ansible-role-pi-baseline
+###
+# Authentication Settings
+###
+github_user_for_ssh_key: ChangeMe
+github_ssh_key: true
+
+###
+# Time Zome. Authorized values found: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
+###
+timezone: "Asia/Seoul"
+
+###
+# Interface Configuration
+###
+static_address: true
+static_interface: eth0
+static_gateway: "192.168.1.1"
+static_subnet_mask: "/24"
+static_dns: "1.1.1.1 1.0.0.1"

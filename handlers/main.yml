@@ -1,0 +1,9 @@
+---
+# handlers file for ansible-role-pi-baseline
+- name: Reboot Host
+  ansible.builtin.reboot:
+
+- name: Restart dhcpcd
+  ansible.builtin.service:
+    name: dhcpcd
+    state: restarted

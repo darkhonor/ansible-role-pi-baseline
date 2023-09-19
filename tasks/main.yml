@@ -1,0 +1,61 @@
+---
+# tasks file for ansible-role-pi-baseline
+- name: Set authorized ssh keys (GitHub)
+  ansible.posix.authorized_key:
+    key: https://github.com/{{ github_user_for_ssh_key }}.keys
+    user: "{{ ansible_user }}"
+    comment: "github-{{ github_user_for_ssh_key }}"
+  when:
+    - github_ssh_key
+
+- name: Set authorized ssh keys (Local)
+  ansible.posix.authorized_key:
+    key: '{{ auth_keys_local_path }}'
+    user: "{{ ansible_user }}"
+    comment: "Authorized SSH Keys"
+  when:
+    - not github_ssh_key
+
+- name: Lock user password 
+  ansible.builtin.user:
+    name: '{{ ansible_user }}'
+    password_lock: true
+
+- name: Set timezone
+  ansible.builtin.lineinfile:
+    path: /etc/timezone
+    regexp: "^"
+    line: "{{ timezone }}"
+
+- name: Set localtime
+  ansible.builtin.file:
+    src: /usr/share/zoneinfo/{{ timezone }}
+    dest: /etc/localtime
+    state: link
+
+- name: Set Hostname from Inventory
+  ansible.builtin.lineinfile:
+    path: /etc/hostname
+    regexp: "^"
+    line: '{{ inventory_hostname }}'
+  notify: Reboot Host
+
+- name: Update hosts file
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    regexp: "^127.0.1.1"
+    line: "127.0.1.1      {{ inventory_hostname }}"
+  notify: Reboot Host
+
+- name: Set DNS Servers
+  ansible.builtin.blockinfile:
+    path: /etc/dhcpcd.conf
+    block: |
+      interface {{ static_interface }}
+      static ip_address={{ ansible_host }}{{ static_subnet_mask }}
+      static routers={{ static_gateway }}
+      static domain_name_servers={{ static_dns }}
+      noipv6
+  notify: Restart dhcpcd
+  when:
+    - static_address
