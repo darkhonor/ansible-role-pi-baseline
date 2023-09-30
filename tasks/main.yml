@@ -53,6 +53,15 @@
       - ufw
     force_apt_get: true
     state: present
+  when:
+    - enable_ufw
+
+- name: Enable UFW Service
+  community.general.ufw:
+    state: enabled 
+    default: reject
+  when:
+    - enable_ufw
 
 - name: Add SSH to Allowed Services
   community.general.ufw:
@@ -65,6 +74,8 @@
     - 10.0.0.0/8
     - 172.16.0.0/12
     - 192.168.0.0/16
+  when: 
+    - enable_ufw
 
 - name: Set DNS Servers
   ansible.builtin.blockinfile:
