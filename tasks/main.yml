@@ -47,6 +47,25 @@
     line: "127.0.1.1      {{ inventory_hostname }}"
   notify: Reboot Host
 
+- name: Install UFW Package 
+  ansible.builtin.apt:
+    name:
+      - ufw
+    force_apt_get: true
+    state: present
+
+- name: Add SSH to Allowed Services
+  community.general.ufw:
+    rule: allow
+    port: "22"
+    proto: tcp
+    src: '{{ item }}'
+    comment: Allow SSH from Private Networks
+  with_items:
+    - 10.0.0.0/8
+    - 172.16.0.0/12
+    - 192.168.0.0/16
+
 - name: Set DNS Servers
   ansible.builtin.blockinfile:
     path: /etc/dhcpcd.conf
